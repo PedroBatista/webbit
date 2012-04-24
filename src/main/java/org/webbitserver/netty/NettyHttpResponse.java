@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Date;
 
+import org.jboss.netty.handler.codec.http.CookieEncoder;
 import static org.jboss.netty.buffer.ChannelBuffers.copiedBuffer;
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
@@ -96,7 +97,11 @@ public class NettyHttpResponse implements org.webbitserver.HttpResponse {
 
     @Override
     public NettyHttpResponse cookie(HttpCookie httpCookie) {
-        return header(HttpHeaders.Names.SET_COOKIE, httpCookie.toString());
+        CookieEncoder enc = new CookieEncoder(false);
+        enc.addCookie(httpCookie.getName(), httpCookie.getValue());
+        return header(HttpHeaders.Names.SET_COOKIE, enc.encode());
+        
+       //return header(HttpHeaders.Names.SET_COOKIE, httpCookie.toString());
     }
 
     @Override
@@ -115,8 +120,8 @@ public class NettyHttpResponse implements org.webbitserver.HttpResponse {
     }
 
     private NettyHttpResponse content(ChannelBuffer content) {
-        responseBuffer.writeBytes(content);
-        return this;
+       responseBuffer.writeBytes(content);
+       return this;
     }
 
     @Override
